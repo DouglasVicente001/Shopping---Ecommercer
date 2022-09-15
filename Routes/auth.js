@@ -28,13 +28,15 @@ router.post("/login", async (req, res) => {
     const usuario = await Usuario.findOne({nome: req.body.nome});
         !usuario && res.status(401).json("email ou senha incorretos")
     const hashedSenha = CryptoJS.AES.decrypt(usuario.senha, process.env.PASS_SEC);
-    const senha = hashedSenha.toString(CryptoJS.enc.Utf8);
-        senha !== req.body.senha && res.status(401).json("credenciais inválidas");
+    const senhaOriginal = hashedSenha.toString(CryptoJS.enc.Utf8);
+    senhaOriginal !== req.body.senha && res.status(401).json("credenciais inválidas");
 
-        res.status(200).json(usuario);
+        const { senha, ...others } = usuario._doc;
+        res.status(200).json(others);
     }catch(err){
         res.status(500).json(err);
     }
+    
 
 });
 
